@@ -1,7 +1,7 @@
 <h1 align=center>Dockette / Tika</h1>
 
 <p align=center>
-   🎁 Apache Tika server with OCR on and the top 20 Tesseract languages.
+   🎁 Apache Tika server with OCR on and extra Tesseract languages.
 </p>
 
 <p align=center>
@@ -27,7 +27,7 @@ garbage instead of an error. Without a config, Tika does not OCR scanned PDFs at
 **Features**
 
 - Apache Tika `3.3.1.0` (upstream `-full` image: Tesseract 5, GDAL, ImageMagick)
-- 20 Tesseract languages + `osd` (orientation and script detection)
+- Tesseract languages: ara, ces, chi_sim, chi_tra, deu, eng, fra, hin, hun, ita, jpn, kor, nld, pol, por, rus, slk, spa, tur, ukr + `osd`
 - OCR on by default, tuned for scanned PDFs (`tika-config.xml`)
 - Healthcheck on `/version`, done with `wget`
 - Entrypoint, user (`35002`) and exposed port (`9998`) are inherited from upstream
