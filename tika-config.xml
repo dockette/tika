@@ -11,6 +11,20 @@
   from DefaultParser first, or the stock parsers stay registered and win.
 -->
 <properties>
+  <server>
+    <params>
+      <!--
+        TikaServerCli forks a child JVM (TikaServerProcess) that does the
+        parsing. These args apply to the child only. Put -Xmx here, not in
+        JAVA_TOOL_OPTIONS: that one applies to both JVMs.
+      -->
+      <forkedJvmArgs>
+        <arg>-Djava.awt.headless=true</arg>
+        <arg>-javaagent:/opt/jmx_exporter/jmx_prometheus_javaagent.jar=9464:/opt/jmx_exporter/config.yaml</arg>
+      </forkedJvmArgs>
+    </params>
+  </server>
+
   <parsers>
     <parser class="org.apache.tika.parser.DefaultParser">
       <parser-exclude class="org.apache.tika.parser.pdf.PDFParser"/>

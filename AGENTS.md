@@ -13,8 +13,13 @@ Apache Tika server Docker image with OCR, published as `dockette/tika`.
 
 ## Conventions
 
-- The image adds Tesseract language packs and `tika-config.xml` to
-  `apache/tika:<version>-full`. Keep it that way.
+- The image adds Tesseract language packs, the jmx_exporter agent and
+  `tika-config.xml` to `apache/tika:<version>-full`. Keep it that way.
+- The agent loads only in the forked child JVM, through `forkedJvmArgs` in
+  `tika-config.xml`. Never load it from `JAVA_TOOL_OPTIONS`: both JVMs would
+  bind port 9464.
+- A jmx_exporter bump changes `JMX_EXPORTER_VERSION` and
+  `JMX_EXPORTER_SHA256` (from the release `.sha256` asset) in the `Dockerfile`.
 - Do not override the upstream entrypoint, user or exposed port. Arguments go
   in `CMD`; the entrypoint appends them to `TikaServerCli -h 0.0.0.0`.
 - The upstream version is pinned in `ARG TIKA_VERSION` in the `Dockerfile`.

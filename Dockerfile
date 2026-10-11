@@ -28,6 +28,20 @@ RUN apt-get update && \
         tesseract-ocr-ukr && \
     rm -rf /var/lib/apt/lists/*
 
+# JMX EXPORTER #################################################################
+# Prometheus metrics of the forked Tika JVM on :9464/metrics. tika-config.xml
+# loads the agent through forkedJvmArgs, so only the child JVM exports.
+ARG JMX_EXPORTER_VERSION=1.7.0
+ARG JMX_EXPORTER_SHA256=0ad843261c567d1924a017d542e14c40f2afff523d940c25ee000742fde4b3a9
+ADD --checksum=sha256:${JMX_EXPORTER_SHA256} \
+    https://github.com/prometheus/jmx_exporter/releases/download/${JMX_EXPORTER_VERSION}/jmx_prometheus_javaagent-${JMX_EXPORTER_VERSION}.jar \
+    /opt/jmx_exporter/jmx_prometheus_javaagent.jar
+COPY jmx-exporter.yaml /opt/jmx_exporter/config.yaml
+# ADD of a URL is 0600 root; the server runs as 35002.
+RUN chmod 0755 /opt/jmx_exporter && chmod 0644 /opt/jmx_exporter/*
+
+EXPOSE 9464
+
 # CONFIG #######################################################################
 # OCR is off for PDFs without a config. The upstream entrypoint appends CMD to
 # `TikaServerCli -h 0.0.0.0`.

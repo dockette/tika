@@ -29,6 +29,7 @@ garbage instead of an error. Without a config, Tika does not OCR scanned PDFs at
 - Apache Tika `3.3.1.0` (upstream `-full` image: Tesseract 5, GDAL, ImageMagick)
 - Tesseract languages: ara, ces, chi_sim, chi_tra, deu, eng, fra, hin, hun, ita, jpn, kor, nld, pol, por, rus, slk, spa, tur, ukr + `osd`
 - OCR on by default, tuned for scanned PDFs (`tika-config.xml`)
+- Prometheus JVM metrics of the forked Tika process on `:9464/metrics` ([jmx_exporter](https://github.com/prometheus/jmx_exporter) `1.7.0`)
 - Healthcheck on `/version`, done with `wget`
 - Entrypoint, user (`35002`) and exposed port (`9998`) are inherited from upstream
 
@@ -50,7 +51,7 @@ garbage instead of an error. Without a config, Tika does not OCR scanned PDFs at
 ## Usage
 
 ```sh
-docker run --rm -it -p 9998:9998 dockette/tika:latest
+docker run --rm -it -p 9998:9998 -p 9464:9464 dockette/tika:latest
 ```
 
 Extract text:
@@ -99,10 +100,19 @@ The default `CMD` is `--config /tika-config.xml`. The arguments are appended to 
 - `extractInlineImages=false` - `true` OCRs each page twice and duplicates the text
 - `language=eng`, `pageSegMode=1`, `timeoutSeconds=300`
 
-## ENV(s)
+## Metrics
 
-- `JAVA_TOOL_OPTIONS` - JVM options. The entrypoint has no `JAVA_OPTS`. Without a limit, the JVM sizes the heap from
-  host RAM. Example: `-Xmx4g -XX:MaxMetaspaceSize=512m`
+`TikaServerCli` forks a child JVM (`TikaServerProcess`) that does the parsing. The child loads the jmx_exporter agent
+through `forkedJvmArgs` in `tika-config.xml` and serves `jvm_*` and `process_*` metrics on port `9464`. Tika has no
+MBeans of its own, so there are no per-request metrics. When the child restarts (OOM or timeout),
+`process_start_time_seconds` changes.
+
+If you mount your own `tika-config.xml`, copy the `<server>` block to keep the metrics.
+
+## Memory
+
+Set the heap of the child JVM in `forkedJvmArgs`, for example `<arg>-Xmx4g</arg>`. Without a limit, the JVM sizes the
+heap from host RAM. Do not use `JAVA_TOOL_OPTIONS` for the heap: it applies to both JVMs.
 
 ## Tags
 

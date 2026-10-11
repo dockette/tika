@@ -1,0 +1,6 @@
+lowercaseOutputName: true
+lowercaseOutputLabelNames: true
+# Tika registers no MBeans of its own. java.lang beans duplicate the built-in
+# jvm_* and process_* collectors, so export only those.
+excludeObjectNames:
+  - "*:*"

@@ -4,6 +4,7 @@ set -eu
 
 IMAGE="${IMAGE:-dockette/tika:latest}"
 PORT="${PORT:-19998}"
+METRICS_PORT="${METRICS_PORT:-19464}"
 NAME="${NAME:-tika-smoke}"
 TIMEOUT="${TIMEOUT:-120}"
 FIXTURES="$(cd "$(dirname "$0")/fixtures" && pwd)"
@@ -16,7 +17,7 @@ trap cleanup EXIT INT TERM
 cleanup
 
 echo "> start ${IMAGE} on port ${PORT}"
-docker run -d --name "$NAME" -p "${PORT}:9998" "$IMAGE" > /dev/null
+docker run -d --name "$NAME" -p "${PORT}:9998" -p "${METRICS_PORT}:9464" "$IMAGE" > /dev/null
 
 echo "> wait for http://127.0.0.1:${PORT}/version"
 i=0
@@ -43,6 +44,10 @@ echo "$out" | grep -q "Faktúra za služby" \
 echo "> text is not duplicated"
 [ "$(echo "$out" | grep -c "Faktúra za služby")" -eq 1 ] \
     || { echo "! OCR text is duplicated (extractInlineImages?)" >&2; exit 1; }
+
+echo "> metrics of the forked JVM"
+curl -fsS "http://127.0.0.1:${METRICS_PORT}/metrics" | grep -q "^jvm_memory_used_bytes" \
+    || { echo "! no JVM metrics on :9464" >&2; exit 1; }
 
 echo "> docker healthcheck"
 i=0
