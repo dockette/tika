@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Tika server config with OCR on.
+
+  ocrStrategy=auto reads the PDF text layer and uses OCR only for pages that
+  give less than 10 characters or unmapped Unicode. It handles born-digital
+  PDFs and scans without OCR on every page. To force OCR for one request:
+      X-Tika-PDFocrStrategy: ocr_and_text_extraction
+
+  A bare <parser> block is ADDITIVE. Exclude PDFParser and TesseractOCRParser
+  from DefaultParser first, or the stock parsers stay registered and win.
+-->
+<properties>
+  <parsers>
+    <parser class="org.apache.tika.parser.DefaultParser">
+      <parser-exclude class="org.apache.tika.parser.pdf.PDFParser"/>
+      <parser-exclude class="org.apache.tika.parser.ocr.TesseractOCRParser"/>
+    </parser>
+
+    <parser class="org.apache.tika.parser.pdf.PDFParser">
+      <params>
+        <param name="ocrStrategy" type="string">auto</param>
+        <!--
+          Measured on invoice scans at 150-400 DPI (noisy, skewed, faint).
+          Only 250 recovered every money amount. Tika's default 300 missed one.
+          Tesseract is very sensitive to rasterisation; measure on your own
+          documents before you change it.
+        -->
+        <param name="ocrDPI" type="int">250</param>
+        <!--
+          Keep false. With ocrStrategy=auto Tika already OCRs the whole page.
+          true also OCRs each embedded image, so a scanned page returns its
+          text twice.
+        -->
+        <param name="extractInlineImages" type="bool">false</param>
+      </params>
+    </parser>
+
+    <parser class="org.apache.tika.parser.ocr.TesseractOCRParser">
+      <params>
+        <!--
+          Default OCR language. Set it per request for better accuracy:
+              X-Tika-OCRLanguage: slk
+              X-Tika-OCRLanguage: eng+ces
+          More languages in one request cost accuracy (diacritics drop).
+        -->
+        <param name="language" type="string">eng</param>
+        <!-- 1 = automatic page segmentation with orientation detection. -->
+        <param name="pageSegMode" type="string">1</param>
+        <!-- Default is 120s. Large multi-page scans need more. -->
+        <param name="timeoutSeconds" type="int">300</param>
+      </params>
+    </parser>
+  </parsers>
+</properties>
