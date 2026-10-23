@@ -121,6 +121,14 @@ heap from host RAM. Do not use `JAVA_TOOL_OPTIONS` for the heap: it applies to b
 | `latest`  | `apache/tika:3.3.1.0-full` |
 | `3.3.1.0` | `apache/tika:3.3.1.0-full` |
 
+## Versions
+
+Releases are dated: `YYYY.MM.DD`, or `YYYY.MM.DD.N` for another release on the same day. The current version is in
+[`VERSION`](VERSION). CI tags each build with it, `latest` as `<VERSION>` and other tags as `<tag>-<VERSION>` (for
+example `3.3.1.0-2026.10.23`), sets the `org.opencontainers.image.version` label and creates the GitHub release.
+
+To release: `make release` sets `VERSION` to today's date (UTC), then commit and push to `master`.
+
 ## User
 
 Default user is `35002:35002`, same as upstream.
@@ -134,6 +142,8 @@ make test-docker    # start the server and OCR a scanned PDF
 make run            # run the server on port 19998
 make shell          # open a shell in the image
 make push           # build and push linux/amd64 and linux/arm64
+make version        # print VERSION
+make release        # set VERSION to today's date (see Versions)
 ```
 
 Build against another Tika release:

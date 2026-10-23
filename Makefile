@@ -1,6 +1,7 @@
 DOCKER_IMAGE=dockette/tika
 DOCKER_TAG?=latest
 DOCKER_PLATFORMS?=linux/amd64,linux/arm64
+VERSION:=$(shell cat VERSION)
 
 TIKA_VERSION?=3.3.1.0
 TIKA_PORT?=19998
@@ -53,3 +54,18 @@ _testcase-langs:
 _testcase-config:
 	docker run --rm --entrypoint test ${DOCKER_IMAGE}:${DOCKER_TAG} -r /tika-config.xml
 	@echo "config ok: /tika-config.xml"
+
+.PHONY: version
+version:
+	@echo ${VERSION}
+
+# Sets VERSION to today's date (UTC), YYYY.MM.DD, or YYYY.MM.DD.N when that
+# date is already released (tagged). Commit and push to master to publish.
+.PHONY: release
+release:
+	@git fetch -q --tags origin 2>/dev/null || true; \
+	v=$$(date -u +%Y.%m.%d); n=0; \
+	while git rev-parse -q --verify "refs/tags/$$v" >/dev/null; do n=$$((n+1)); v=$$(date -u +%Y.%m.%d).$$n; done; \
+	echo "$$v" > VERSION; \
+	echo "VERSION: ${VERSION} -> $$v"; \
+	echo "next: git commit -am 'Release: $$v' && git push"
