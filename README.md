@@ -123,11 +123,8 @@ heap from host RAM. Do not use `JAVA_TOOL_OPTIONS` for the heap: it applies to b
 
 ## Versions
 
-Releases are dated: `YYYY.MM.DD`, or `YYYY.MM.DD.N` for another release on the same day. The current version is in
-[`VERSION`](VERSION). CI tags each build with it, `latest` as `<VERSION>` and other tags as `<tag>-<VERSION>` (for
-example `3.3.1.0-2026.10.23`), sets the `org.opencontainers.image.version` label and creates the GitHub release.
-
-To release: `make release` sets `VERSION` to today's date (UTC), then commit and push to `master`.
+The release version is the date in [`VERSION`](VERSION). CI pushes `latest` also as `dockette/tika:<VERSION>`.
+To release, run `make release`, commit and push to `master`.
 
 ## User
 
@@ -143,7 +140,7 @@ make run            # run the server on port 19998
 make shell          # open a shell in the image
 make push           # build and push linux/amd64 and linux/arm64
 make version        # print VERSION
-make release        # set VERSION to today's date (see Versions)
+make release        # set VERSION to today's date
 ```
 
 Build against another Tika release:
