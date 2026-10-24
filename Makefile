@@ -59,13 +59,8 @@ _testcase-config:
 version:
 	@echo ${VERSION}
 
-# Sets VERSION to today's date (UTC), YYYY.MM.DD, or YYYY.MM.DD.N when that
-# date is already released (tagged). Commit and push to master to publish.
 .PHONY: release
 release:
-	@git fetch -q --tags origin 2>/dev/null || true; \
-	v=$$(date -u +%Y.%m.%d); n=0; \
-	while git rev-parse -q --verify "refs/tags/$$v" >/dev/null; do n=$$((n+1)); v=$$(date -u +%Y.%m.%d).$$n; done; \
-	echo "$$v" > VERSION; \
-	echo "VERSION: ${VERSION} -> $$v"; \
-	echo "next: git commit -am 'Release: $$v' && git push"
+	@date -u +%Y.%m.%d > VERSION
+	@echo "VERSION: ${VERSION} -> $$(cat VERSION)"
+	@echo "next: git commit -am \"Release: $$(cat VERSION)\" && git push"
