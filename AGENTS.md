@@ -23,16 +23,16 @@ Apache Tika server Docker image with OCR, published as `dockette/tika`.
 - Do not override the upstream entrypoint, user or exposed port. Arguments go
   in `CMD`; the entrypoint appends them to `TikaServerCli -h 0.0.0.0`.
 - The upstream version is pinned in `ARG TIKA_VERSION` in the `Dockerfile`.
-  The default value must build correctly without any `--build-arg`, because the
-  shared workflow in `dockette/.github` cannot pass build arguments.
-- A version bump touches three places: the `ARG` default, `TIKA_VERSION` in the
-  `Makefile`, and the `tag` matrix in `.github/workflows/docker.yml`.
+  The default value must build correctly without any `--build-arg`, because CI
+  passes no build arguments.
+- A Tika bump changes `TIKA_VERSION` in `VERSION`, the `ARG` default and the
+  README.
 - A language change touches the `Dockerfile`, `TIKA_LANGS` in the `Makefile`
   and the table in `README.md`.
 - `tika-config.xml` values are measured. Read its comments before you change
   them; `extractInlineImages` must stay `false`.
-- `VERSION` is the release date; `make release` bumps it. CI pushes `latest`
-  also as `<VERSION>` and creates the GitHub release.
+- `VERSION` holds the release date and `TIKA_VERSION`. `make release` sets the
+  date.
 - CI builds every branch. Only master is pushed to Docker Hub.
 - `make test` checks the image contents. `make test-docker` starts the server
   and OCRs `tests/fixtures/scanned-sk.pdf`.
