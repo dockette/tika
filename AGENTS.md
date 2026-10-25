@@ -25,8 +25,8 @@ Apache Tika server Docker image with OCR, published as `dockette/tika`.
 - The upstream version is pinned in `ARG TIKA_VERSION` in the `Dockerfile`.
   The default value must build correctly without any `--build-arg`, because the
   shared workflow in `dockette/.github` cannot pass build arguments.
-- A version bump touches three places: the `ARG` default, `TIKA_VERSION` in the
-  `Makefile`, and the `tag` matrix in `.github/workflows/docker.yml`.
+- A version bump touches the `ARG` default, `TIKA_VERSION` in the `Makefile`
+  and the tables in `README.md`. CI reads the tag from the `ARG`.
 - A language change touches the `Dockerfile`, `TIKA_LANGS` in the `Makefile`
   and the table in `README.md`.
 - `tika-config.xml` values are measured. Read its comments before you change

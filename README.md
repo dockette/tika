@@ -123,8 +123,17 @@ heap from host RAM. Do not use `JAVA_TOOL_OPTIONS` for the heap: it applies to b
 
 ## Versions
 
-The release version is the date in [`VERSION`](VERSION). CI pushes `latest` also as `dockette/tika:<VERSION>`.
-To release, run `make release`, commit and push to `master`.
+The release version is the date in [`VERSION`](VERSION). The Tika version is pinned in the `Dockerfile`
+(`TIKA_VERSION`). On `master`, CI pushes the image under four tags:
+
+| Tag | What it is |
+|-----|------------|
+| `dockette/tika:latest` | latest build of `master` |
+| `dockette/tika:2026.10.23` | release `2026.10.23` |
+| `dockette/tika:3.3.1.0` | latest build with Tika `3.3.1.0` |
+| `dockette/tika:3.3.1.0-2026.10.23` | Tika `3.3.1.0` in release `2026.10.23`; pin this one |
+
+To release, run `make release`, commit and push to `master`. A Tika upgrade is a release too.
 
 ## User
 
