@@ -142,12 +142,6 @@ make version        # print VERSION
 make release        # set today's date in VERSION
 ```
 
-Build against another Tika release:
-
-```sh
-make build TIKA_VERSION=3.2.3.0
-```
-
 ## Maintenance
 
 See [how to contribute](https://github.com/dockette/.github/blob/master/CONTRIBUTING.md) to this package. Consider to
