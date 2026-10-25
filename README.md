@@ -114,16 +114,16 @@ If you mount your own `tika-config.xml`, copy the `<server>` block to keep the m
 Set the heap of the child JVM in `forkedJvmArgs`, for example `<arg>-Xmx4g</arg>`. Without a limit, the JVM sizes the
 heap from host RAM. Do not use `JAVA_TOOL_OPTIONS` for the heap: it applies to both JVMs.
 
-## Tags
+## Versions
 
-| Tag | Contents |
-|-----|----------|
-| `3.3.1.0-YYYY.MM.DD` | Tika `3.3.1.0`, release `YYYY.MM.DD`. Pin this one. |
-| `3.3.1.0` | Tika `3.3.1.0`, latest release |
-| `YYYY.MM.DD` | release `YYYY.MM.DD` |
-| `latest` | latest build of `master` |
+| Version | Tika | Release |
+|---------|------|---------|
+| `dockette/tika:3.3.1.0-YYYY.MM.DD` | `3.3.1.0` | `YYYY.MM.DD`, pin this one |
+| `dockette/tika:3.3.1.0` | `3.3.1.0` | latest |
+| `dockette/tika:YYYY.MM.DD` | as released | `YYYY.MM.DD` |
+| `dockette/tika:latest` | `3.3.1.0` | latest build of `master` |
 
-All tags build on `apache/tika:3.3.1.0-full`. Releases are listed on [GitHub](https://github.com/dockette/tika/releases).
+All versions build on `apache/tika:3.3.1.0-full`. Releases are listed on [GitHub](https://github.com/dockette/tika/releases).
 
 ## User
 
@@ -139,7 +139,7 @@ make run            # run the server on port 19998
 make shell          # open a shell in the image
 make push           # build and push linux/amd64 and linux/arm64
 make version        # print VERSION
-make release        # set the release date in VERSION, then commit and push to master
+make release        # set today's date in VERSION
 ```
 
 Build against another Tika release:
