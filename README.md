@@ -116,12 +116,12 @@ heap from host RAM. Do not use `JAVA_TOOL_OPTIONS` for the heap: it applies to b
 
 ## Versions
 
-| Version | Tika | Release |
-|---------|------|---------|
-| `dockette/tika:3.3.1.0-YYYY.MM.DD` | `3.3.1.0` | `YYYY.MM.DD`, pin this one |
-| `dockette/tika:3.3.1.0` | `3.3.1.0` | latest |
-| `dockette/tika:YYYY.MM.DD` | as released | `YYYY.MM.DD` |
-| `dockette/tika:latest` | `3.3.1.0` | latest build of `master` |
+| Version | Release |
+|---------|---------|
+| `dockette/tika:3.3.1.0-YYYY.MM.DD` | release `YYYY.MM.DD` |
+| `dockette/tika:3.3.1.0` | latest release |
+| `dockette/tika:YYYY.MM.DD` | release `YYYY.MM.DD` |
+| `dockette/tika:latest` | latest build of `master` |
 
 All versions build on `apache/tika:3.3.1.0-full`. Releases are listed on [GitHub](https://github.com/dockette/tika/releases).
 
