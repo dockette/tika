@@ -41,17 +41,15 @@ jobs:
     name: "Version"
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.version.outputs.version }}
-      tika: ${{ steps.version.outputs.tika }}
+      version: ${{ steps.version.outputs.VERSION }}
+      tika: ${{ steps.version.outputs.TIKA_VERSION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Read VERSION and TIKA_VERSION
+      - name: Read VERSION
         id: version
-        run: |
-          echo "version=$(cat VERSION)" >> "$GITHUB_OUTPUT"
-          echo "tika=$(sed -n 's/^ARG TIKA_VERSION=//p' Dockerfile)" >> "$GITHUB_OUTPUT"
+        run: cat VERSION >> "$GITHUB_OUTPUT"
 
   build:
     name: "Build"
@@ -89,9 +87,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          v="$(cat VERSION)"
-          t="$(sed -n 's/^ARG TIKA_VERSION=//p' Dockerfile)"
-          gh release view "$v" || gh release create "$v" --title "$v (Tika $t)" --generate-notes
+          . ./VERSION
+          gh release view "$VERSION" || gh release create "$VERSION" --title "$VERSION (Tika $TIKA_VERSION)" --generate-notes
 
   docs:
     name: "Docs"

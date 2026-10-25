@@ -1,9 +1,10 @@
 DOCKER_IMAGE=dockette/tika
 DOCKER_TAG?=latest
 DOCKER_PLATFORMS?=linux/amd64,linux/arm64
-VERSION:=$(shell cat VERSION)
 
-TIKA_VERSION?=3.3.1.0
+# VERSION (release date) and TIKA_VERSION
+include VERSION
+
 TIKA_PORT?=19998
 
 TIKA_LANGS=ara ces chi_sim chi_tra deu eng fra hin hun ita jpn kor nld osd pol por rus slk spa tur ukr
@@ -61,6 +62,6 @@ version:
 
 .PHONY: release
 release:
-	@date -u +%Y.%m.%d > VERSION
-	@echo "VERSION: ${VERSION} -> $$(cat VERSION)"
-	@echo "next: git commit -am \"Release: $$(cat VERSION)\" && git push"
+	@v=$$(date -u +%Y.%m.%d); sed -i.bak "s/^VERSION=.*/VERSION=$$v/" VERSION && rm VERSION.bak; \
+	echo "VERSION: ${VERSION} -> $$v"; \
+	echo "next: git commit -am \"Release: $$v\" && git push"

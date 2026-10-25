@@ -116,24 +116,14 @@ heap from host RAM. Do not use `JAVA_TOOL_OPTIONS` for the heap: it applies to b
 
 ## Tags
 
-| Tag       | Upstream                   |
-|-----------|----------------------------|
-| `latest`  | `apache/tika:3.3.1.0-full` |
-| `3.3.1.0` | `apache/tika:3.3.1.0-full` |
+| Tag | Contents |
+|-----|----------|
+| `3.3.1.0-YYYY.MM.DD` | Tika `3.3.1.0`, release `YYYY.MM.DD`. Pin this one. |
+| `3.3.1.0` | Tika `3.3.1.0`, latest release |
+| `YYYY.MM.DD` | release `YYYY.MM.DD` |
+| `latest` | latest build of `master` |
 
-## Versions
-
-The release version is the date in [`VERSION`](VERSION). The Tika version is pinned in the `Dockerfile`
-(`TIKA_VERSION`). On `master`, CI pushes the image under four tags:
-
-| Tag | What it is |
-|-----|------------|
-| `dockette/tika:latest` | latest build of `master` |
-| `dockette/tika:2026.10.23` | release `2026.10.23` |
-| `dockette/tika:3.3.1.0` | latest build with Tika `3.3.1.0` |
-| `dockette/tika:3.3.1.0-2026.10.23` | Tika `3.3.1.0` in release `2026.10.23`; pin this one |
-
-To release, run `make release`, commit and push to `master`. A Tika upgrade is a release too.
+All tags build on `apache/tika:3.3.1.0-full`. Releases are listed on [GitHub](https://github.com/dockette/tika/releases).
 
 ## User
 
@@ -149,7 +139,7 @@ make run            # run the server on port 19998
 make shell          # open a shell in the image
 make push           # build and push linux/amd64 and linux/arm64
 make version        # print VERSION
-make release        # set VERSION to today's date
+make release        # set the release date in VERSION, then commit and push to master
 ```
 
 Build against another Tika release:
