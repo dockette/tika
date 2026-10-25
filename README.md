@@ -17,23 +17,18 @@
 
 ------
 
-## Prologue
+[Apache Tika](https://tika.apache.org) server that extracts text and metadata from PDF, Office, images and 1000+ other
+formats. The upstream `apache/tika:<version>-full` image has only 7 OCR languages and does not OCR scanned PDFs. This
+image adds 20 languages and turns OCR on.
 
-[Apache Tika](https://tika.apache.org) extracts text and metadata from PDF, Office, images and 1000+ other formats.
+## Features
 
-The upstream `apache/tika:<version>-full` image has Tesseract, but only 7 languages. Without a language pack, OCR returns
-garbage instead of an error. Without a config, Tika does not OCR scanned PDFs at all. This image fixes both.
-
-**Features**
-
-- Apache Tika `3.3.1.0` (upstream `-full` image: Tesseract 5, GDAL, ImageMagick)
-- Tesseract languages: ara, ces, chi_sim, chi_tra, deu, eng, fra, hin, hun, ita, jpn, kor, nld, pol, por, rus, slk, spa, tur, ukr + `osd`
-- OCR on by default, tuned for scanned PDFs (`tika-config.xml`)
-- Prometheus JVM metrics of the forked Tika process on `:9464/metrics` ([jmx_exporter](https://github.com/prometheus/jmx_exporter) `1.7.0`)
-- Healthcheck on `/version`, done with `wget`
-- Entrypoint, user (`35002`) and exposed port (`9998`) are inherited from upstream
-
-**Languages**
+- Apache Tika `3.3.1.0` on the upstream `-full` image (Tesseract 5, GDAL, ImageMagick)
+- 20 Tesseract languages and `osd`, see the table below
+- OCR on by default, tuned for scanned PDFs ([tika-config.xml](tika-config.xml))
+- Prometheus JVM metrics on `:9464/metrics` ([jmx_exporter](https://github.com/prometheus/jmx_exporter) `1.7.0`)
+- Healthcheck on `/version`
+- Entrypoint, user `35002:35002` and port `9998` are the same as upstream
 
 | Code      | Language            | Code      | Language   |
 |-----------|---------------------|-----------|------------|
@@ -54,81 +49,57 @@ garbage instead of an error. Without a config, Tika does not OCR scanned PDFs at
 docker run --rm -it -p 9998:9998 -p 9464:9464 dockette/tika:latest
 ```
 
-Extract text:
-
 ```sh
+# Text
 curl -T document.pdf -H 'Accept: text/plain' http://localhost:9998/tika
-```
 
-OCR in a specific language (default is `eng`):
-
-```sh
+# OCR in another language (default is eng), or in more languages
 curl -T scan.pdf -H 'Accept: text/plain' -H 'X-Tika-OCRLanguage: slk' http://localhost:9998/tika
 curl -T scan.pdf -H 'Accept: text/plain' -H 'X-Tika-OCRLanguage: eng+ces' http://localhost:9998/tika
-```
 
-Force OCR on every page, also when the PDF has a text layer:
-
-```sh
+# OCR every page, also when the PDF has a text layer
 curl -T doc.pdf -H 'Accept: text/plain' -H 'X-Tika-PDFocrStrategy: ocr_and_text_extraction' http://localhost:9998/tika
-```
 
-Text and metadata of every embedded document as JSON:
-
-```sh
+# Text and metadata of every embedded document, as JSON
 curl -T archive.zip http://localhost:9998/rmeta/text
-```
-
-With your own configuration file:
-
-```sh
-docker run \
-    --rm \
-    -it \
-    -p 9998:9998 \
-    -v $(pwd)/tika-config.xml:/tika-config.xml:ro \
-    dockette/tika:latest
 ```
 
 ## Configuration
 
-The default `CMD` is `--config /tika-config.xml`. The arguments are appended to `TikaServerCli -h 0.0.0.0`. See
-[tika-config.xml](tika-config.xml):
+The image runs with [tika-config.xml](tika-config.xml):
 
-- `ocrStrategy=auto` - read the text layer, OCR only pages with no text
-- `ocrDPI=250` - measured on scanned invoices; Tika's default `300` gave worse results
-- `extractInlineImages=false` - `true` OCRs each page twice and duplicates the text
+- `ocrStrategy=auto`: read the text layer, OCR only pages without text
+- `ocrDPI=250`: measured on scanned invoices; the Tika default `300` gave worse results
+- `extractInlineImages=false`: `true` OCRs each page twice and duplicates the text
 - `language=eng`, `pageSegMode=1`, `timeoutSeconds=300`
+
+To use your own file, mount it. Copy the `<server>` block from ours to keep the metrics.
+
+```sh
+docker run --rm -it -p 9998:9998 -v $(pwd)/tika-config.xml:/tika-config.xml:ro dockette/tika:latest
+```
+
+Arguments after the image name replace the default `--config /tika-config.xml` and go to `TikaServerCli -h 0.0.0.0`.
+
+Set the heap in `forkedJvmArgs`, for example `<arg>-Xmx4g</arg>`. Without it, the JVM sizes the heap from host RAM. Do
+not use `JAVA_TOOL_OPTIONS`: it applies to both JVMs.
 
 ## Metrics
 
-`TikaServerCli` forks a child JVM (`TikaServerProcess`) that does the parsing. The child loads the jmx_exporter agent
-through `forkedJvmArgs` in `tika-config.xml` and serves `jvm_*` and `process_*` metrics on port `9464`. Tika has no
-MBeans of its own, so there are no per-request metrics. When the child restarts (OOM or timeout),
-`process_start_time_seconds` changes.
-
-If you mount your own `tika-config.xml`, copy the `<server>` block to keep the metrics.
-
-## Memory
-
-Set the heap of the child JVM in `forkedJvmArgs`, for example `<arg>-Xmx4g</arg>`. Without a limit, the JVM sizes the
-heap from host RAM. Do not use `JAVA_TOOL_OPTIONS` for the heap: it applies to both JVMs.
-
-## Tags
-
-| Tag       | Upstream                   |
-|-----------|----------------------------|
-| `latest`  | `apache/tika:3.3.1.0-full` |
-| `3.3.1.0` | `apache/tika:3.3.1.0-full` |
+Tika parses in a child JVM (`TikaServerProcess`). The child loads the jmx_exporter agent and serves `jvm_*` and
+`process_*` metrics on port `9464`. Tika has no metrics of its own, so there are no per-request metrics. When the child
+restarts (OOM or timeout), `process_start_time_seconds` changes.
 
 ## Versions
 
-The release version is the date in [`VERSION`](VERSION). CI pushes `latest` also as `dockette/tika:<VERSION>`.
-To release, run `make release`, commit and push to `master`.
+| Version | Release |
+|---------|---------|
+| `dockette/tika:3.3.1.0-YYYY.MM.DD` | release `YYYY.MM.DD` |
+| `dockette/tika:3.3.1.0` | latest release |
+| `dockette/tika:YYYY.MM.DD` | release `YYYY.MM.DD` |
+| `dockette/tika:latest` | latest build of `master` |
 
-## User
-
-Default user is `35002:35002`, same as upstream.
+All versions build on `apache/tika:3.3.1.0-full`. Releases are listed on [GitHub](https://github.com/dockette/tika/releases).
 
 ## Development
 
@@ -140,13 +111,7 @@ make run            # run the server on port 19998
 make shell          # open a shell in the image
 make push           # build and push linux/amd64 and linux/arm64
 make version        # print VERSION
-make release        # set VERSION to today's date
-```
-
-Build against another Tika release:
-
-```sh
-make build TIKA_VERSION=3.2.3.0
+make release        # set today's date in VERSION
 ```
 
 ## Maintenance
